@@ -79,7 +79,6 @@ orderSchema.pre("save", function (next) {
   this.shippingPrice = this.itemsPrice > 100 ? 0 : 10;
   this.totalPrice = this.itemsPrice + this.taxPrice + this.shippingPrice;
 
-  // If cancellableUntil is missing (for legacy orders), set it to 24h from now
   if (!this.cancellableUntil) {
     this.cancellableUntil = new Date(Date.now() + 24 * 60 * 60 * 1000);
   }

@@ -50,7 +50,7 @@ const admin = (req, res, next) => {
   }
 };
 
-// Optional auth - doesn't throw error if no token, but attaches user if valid
+
 const optionalAuth = asyncHandler(async (req, res, next) => {
   let token;
 
@@ -63,7 +63,7 @@ const optionalAuth = asyncHandler(async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select("-password");
     } catch (error) {
-      // Don't throw error for optional auth, just continue without user
+      
       console.log("Optional auth token invalid, continuing without user");
     }
   }

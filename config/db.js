@@ -1,10 +1,10 @@
-// config/db.js
+
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      // These options help avoid deprecation warnings
+ 
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

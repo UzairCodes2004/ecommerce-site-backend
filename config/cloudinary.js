@@ -14,9 +14,9 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "ecommerce-app", // Folder name in your Cloudinary account
-    allowed_formats: ["jpg", "jpeg", "png", "webp"], // Allowed file formats
-    transformation: [{ width: 800, height: 800, crop: "limit" }], // Auto-resize
+    folder: "ecommerce-app", 
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    transformation: [{ width: 800, height: 800, crop: "limit" }], 
   },
 });
 

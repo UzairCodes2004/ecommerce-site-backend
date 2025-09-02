@@ -21,7 +21,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("User already exists with this email");
   }
 
-  // ✅ NEW: Check if email is in admin whitelist (SAFE ADDITION)
+  //  Check if email is in admin whitelist (SAFE ADDITION)
   const adminEmails = process.env.ADMIN_EMAILS
     ? process.env.ADMIN_EMAILS.split(",")
     : [];
@@ -64,13 +64,13 @@ const loginUser = asyncHandler(async (req, res) => {
   // Check for user and match password
   const user = await User.findOne({ email });
   if (user && (await user.matchPassword(password))) {
-    // ✅ NEW: Check and update admin status on EVERY login (SAFE ADDITION)
+    //  Check and update admin status on EVERY login 
     const adminEmails = process.env.ADMIN_EMAILS
       ? process.env.ADMIN_EMAILS.split(",")
       : [];
     const shouldBeAdmin = adminEmails.includes(email);
 
-    // If user should be admin but isn't, update them
+  
     if (shouldBeAdmin && !user.isAdmin) {
       user.isAdmin = true;
       await user.save();
@@ -102,7 +102,7 @@ const getProfile = asyncHandler(async (req, res) => {
   });
 });
 
-// ✅ NEW: Admin promotion endpoint (SAFE ADDITION)
+//  Admin promotion endpoint \
 const promoteToAdmin = asyncHandler(async (req, res) => {
   const { email } = req.body;
 

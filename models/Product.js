@@ -31,7 +31,7 @@ const productSchema = mongoose.Schema(
     image: {
       type: String,
       required: true,
-      // ❌ REMOVE default: "/images/sample.jpg"
+      
     },
     brand: {
       type: String,
@@ -51,19 +51,19 @@ const productSchema = mongoose.Schema(
     rating: {
       type: Number,
       required: true,
-      default: 0, // ✅ KEEP this default (for new products)
+      default: 0, 
       min: 0,
       max: 5,
     },
     numReviews: {
       type: Number,
       required: true,
-      default: 0, // ✅ KEEP this default (for new products)
+      default: 0, 
     },
     price: {
       type: Number,
       required: true,
-      // ❌ REMOVE default: 0
+      
       min: 0,
     },
     countInStock: {
@@ -74,7 +74,7 @@ const productSchema = mongoose.Schema(
     },
     featured: {
       type: Boolean,
-      default: false, // ✅ KEEP this default
+      default: false, 
     },
   },
   {

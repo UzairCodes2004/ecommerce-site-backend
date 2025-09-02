@@ -41,11 +41,11 @@ const getProductById = asyncHandler(async (req, res) => {
 // @desc    Create a product
 // @route   POST /api/products
 // @access  Private/Admin
-// ✅ Even cleaner version
+
 const createProduct = asyncHandler(async (req, res) => {
   const product = new Product({
-    ...req.body,          // ← Spread all properties from req.body
-    user: req.user._id,   // ← Add the user ID
+    ...req.body,          
+    user: req.user._id,  
   });
 
   const createdProduct = await product.save();
