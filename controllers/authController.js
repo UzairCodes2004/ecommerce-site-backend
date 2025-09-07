@@ -123,7 +123,7 @@ const promoteToAdmin = asyncHandler(async (req, res) => {
 
   user.isAdmin = true;
   await user.save();
-
+ 
   res.json({
     success: true,
     message: "User promoted to admin successfully",
