@@ -27,12 +27,11 @@ const registerUser = asyncHandler(async (req, res) => {
     : [];
   const isAdmin = adminEmails.includes(email);
 
-  
   const user = await User.create({
     name,
     email,
     password,
-    isAdmin, 
+    isAdmin,
   });
 
   if (user) {
@@ -40,7 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin, 
+      isAdmin: user.isAdmin,
       token: generateToken(user._id),
     });
   } else {
@@ -64,13 +63,12 @@ const loginUser = asyncHandler(async (req, res) => {
   // Check for user and match password
   const user = await User.findOne({ email });
   if (user && (await user.matchPassword(password))) {
-    //  Check and update admin status on EVERY login 
+    //  Check and update admin status on EVERY login
     const adminEmails = process.env.ADMIN_EMAILS
       ? process.env.ADMIN_EMAILS.split(",")
       : [];
     const shouldBeAdmin = adminEmails.includes(email);
 
-  
     if (shouldBeAdmin && !user.isAdmin) {
       user.isAdmin = true;
       await user.save();
