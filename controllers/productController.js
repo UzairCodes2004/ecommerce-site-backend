@@ -44,37 +44,46 @@ const getProductById = asyncHandler(async (req, res) => {
 
 const createProduct = asyncHandler(async (req, res) => {
   const product = new Product({
-    ...req.body,          
-    user: req.user._id,  
+    ...req.body,
+    user: req.user._id,
   });
 
   const createdProduct = await product.save();
   res.status(201).json(createdProduct);
 });
- 
+
 // @desc    Update a product
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = asyncHandler(async (req, res) => {
-  const { name, price, description, image, brand, category, countInStock } =
-    req.body;
-
   const product = await Product.findById(req.params.id);
-  if (product) {
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.image = image;
-    product.brand = brand;
-    product.category = category;
-    product.countInStock = countInStock;
 
-    const updatedProduct = await product.save();
-    res.json(updatedProduct);
-  } else {
+  if (!product) {
     res.status(404);
     throw new Error("Product not found");
   }
+
+  // List of allowed fields
+  const allowedFields = [
+    "name",
+    "price",
+    "description",
+    "image",
+    "brand",
+    "category",
+    "countInStock",
+    "featured",
+  ];
+
+  // Update only the fields that are provided in request
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      product[field] = req.body[field];
+    }
+  });
+
+  const updatedProduct = await product.save();
+  res.json(updatedProduct);
 });
 
 // @desc    Delete a product
