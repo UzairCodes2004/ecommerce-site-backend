@@ -100,5 +100,5 @@ productSchema.pre("save", function (next) {
   this.calculateAverageRating();
   next();
 });
-
+productSchema.index({ name: "text", description: "text", brand: "text" });
 module.exports = mongoose.model("Product", productSchema);
