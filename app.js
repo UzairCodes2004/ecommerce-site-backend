@@ -34,12 +34,13 @@ app.use(
     credentials: true,
   })
 );
+console.log("CORS allowed origin ->", process.env.FRONTEND_URL);
 
-
+// Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Static folder for uploaded files (if not using Cloudinary)
+// Static folder for uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Health check route
@@ -52,6 +53,12 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// TEMP: Test route to verify JSON parsing
+app.post("/api/test-json", (req, res) => {
+  console.log("Received JSON body:", req.body);
+  res.status(200).json({ received: req.body });
+});
+
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -60,7 +67,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/upload", uploadRoutes);
 
-// Serve static assets in production
+// Serve frontend in production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
@@ -69,7 +76,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// 404 handler for undefined routes
+// 404 handler
 app.use("*", (req, res) => {
   res.status(404).json({
     success: false,
@@ -77,7 +84,7 @@ app.use("*", (req, res) => {
   });
 });
 
-// Error handling middleware (must be last)
+// Error handling middleware
 app.use(errorHandler);
 
 // Handle unhandled promise rejections
@@ -101,7 +108,7 @@ const server = app.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });
 
-// Handle graceful shutdown
+// Graceful shutdown
 process.on("SIGTERM", () => {
   console.log("SIGTERM received, shutting down gracefully");
   server.close(() => {
