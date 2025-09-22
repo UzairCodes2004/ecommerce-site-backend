@@ -7,6 +7,12 @@ const {
   updateOrderToPaid,
   getOrders,
   cancelOrder, 
+  checkPurchase,
+  deleteOrder,
+  markOrderAsDelivered,
+  markOrderAsShipped,
+  refundOnCancellation,
+  markAsPaid,
 } = require('../controllers/orderController');
 const { protect, admin } = require('../middleware/auth');
 
@@ -37,4 +43,23 @@ router.get('/', protect, admin, getOrders);
 
 router.put('/:id/cancel', protect, cancelOrder);
 
+router.get("/check-purchase/:productId", protect, checkPurchase);
+
+// @route   DELETE /api/orders/:id
+// @desc    Delete an order (Admin only)
+// @access  Private/Admin
+router.delete('/:id', protect, admin, deleteOrder);
+
+// @route   PUT /api/orders/:id/receive
+// @desc    Mark order as delivered (User confirms delivery)
+// @access  Private
+router.put('/:id/receive', protect, markOrderAsDelivered);
+// @route   PUT /api/orders/:id/ship
+// @desc    Mark order as Shipped (Admin Only)
+// @access  Private
+router.put('/:id/ship', protect, admin, markOrderAsShipped);
+// routes/orderRoutes.js
+router.put('/:id/refund', protect, admin, refundOnCancellation);
+
+router.put('/:id/mark-paid',protect,admin,markAsPaid)
 module.exports = router;

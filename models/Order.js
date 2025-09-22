@@ -80,12 +80,28 @@ const orderSchema = new mongoose.Schema(
     cancelledAt: {
       type: Date,
     },
+
     isRefunded: {
       type: Boolean,
       required: true,
       default: false,
     },
     refundedAt: {
+      type: Date,
+    },
+    refundAmount: {
+      // ✅ Add this to track refund amount
+      type: Number,
+      default: 0.0,
+    },
+
+    isShipped: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    shippedAt: {
+      // ✅ Add this to track when order was shipped
       type: Date,
     },
   },

@@ -1,131 +1,97 @@
+// middleware/upload.js
 const multer = require("multer");
 const path = require("path");
-const {
-  cloudinary,
-  upload: cloudinaryUpload,
-} = require("../config/cloudinary");
+const { cloudinary } = require("../config/cloudinary");
 
-// Configure multer for memory storage (for Cloudinary)
+// Memory storage (we upload buffer to Cloudinary)
 const memoryStorage = multer.memoryStorage();
 
-// File filter for images only
+// File filter (images only)
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp|gif/;
-  const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase()
-  );
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
-
-  if (mimetype && extname) {
-    return cb(null, true);
-  } else {
-    cb(new Error("Only image files are allowed!"), false);
-  }
+  if (mimetype && extname) cb(null, true);
+  else cb(new Error("Only image files are allowed (jpeg/jpg/png/webp/gif)"));
 };
 
-// Configure multer for memory storage
 const upload = multer({
   storage: memoryStorage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
-  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter,
 });
 
-// Middleware to handle Cloudinary upload
+// Helper: upload buffer to Cloudinary
+const uploadBufferToCloudinary = (buffer, folder = "ecommerce-app") =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        transformation: [{ width: 800, height: 800, crop: "limit" }],
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    stream.end(buffer);
+  });
+
+// Single upload middleware
 const uploadToCloudinary = async (req, res, next) => {
   try {
+    // Debug log
+    console.log("uploadToCloudinary middleware start - hasFile:", Boolean(req.file));
     if (!req.file) {
-      return next();
+      // No file -> explicitly respond with helpful message
+      return res.status(400).json({ success: false, message: "No file uploaded (field 'image' missing or multipart/form-data not sent)" });
     }
 
-    // Upload to Cloudinary
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: "ecommerce-app",
-          transformation: [
-            { width: 800, height: 800, crop: "limit" },
-            { quality: "auto" },
-            { format: "webp" }, // Convert to webp for better performance
-          ],
-        },
-        (error, result) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(result);
-          }
-        }
-      );
-
-      stream.end(req.file.buffer);
-    });
-
-    // Add Cloudinary result to request object
+    const result = await uploadBufferToCloudinary(req.file.buffer);
     req.file.cloudinaryResult = result;
     req.file.url = result.secure_url;
     req.file.public_id = result.public_id;
 
+    // Debug log
+    console.log("Cloudinary result:", { url: req.file.url, public_id: req.file.public_id });
+
     next();
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    // return clear JSON error so frontend sees message
+    return res.status(500).json({ success: false, message: "Cloudinary upload failed", error: err.message });
   }
 };
 
-// Middleware to handle multiple file uploads
-const uploadMultiple = upload.array("images", 5); // Max 5 files
-
-// Middleware to process multiple Cloudinary uploads
+// Multiple uploads
+const uploadMultiple = upload.array("images", 5);
 const uploadMultipleToCloudinary = async (req, res, next) => {
   try {
     if (!req.files || req.files.length === 0) {
-      return next();
+      return res.status(400).json({ success: false, message: "No files uploaded (field 'images')" });
     }
 
-    const uploadPromises = req.files.map(async (file) => {
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: "ecommerce-app",
-            transformation: [
-              { width: 800, height: 800, crop: "limit" },
-              { quality: "auto" },
-              { format: "webp" },
-            ],
-          },
-          (error, result) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result);
-            }
-          }
-        );
+    const uploads = await Promise.all(
+      req.files.map(file => uploadBufferToCloudinary(file.buffer).then(res => ({
+        url: res.secure_url,
+        public_id: res.public_id,
+        originalname: file.originalname
+      })))
+    );
 
-        stream.end(file.buffer);
-      });
-
-      return {
-        url: result.secure_url,
-        public_id: result.public_id,
-        originalname: file.originalname,
-      };
-    });
-
-    req.uploadedFiles = await Promise.all(uploadPromises);
+    req.uploadedFiles = uploads;
     next();
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    console.error("Cloudinary multiple upload error:", err);
+    return res.status(500).json({ success: false, message: "Multiple upload failed", error: err.message });
   }
 };
 
-// Middleware to delete file from Cloudinary
 const deleteFromCloudinary = async (public_id) => {
   try {
     await cloudinary.uploader.destroy(public_id);
-  } catch (error) {
-    console.error("Error deleting from Cloudinary:", error);
+  } catch (err) {
+    console.error("Cloudinary delete error:", err);
   }
 };
 
