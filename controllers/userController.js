@@ -1,5 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/User");
+const generateToken = require("../utils/generateToken");
+
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -36,7 +38,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       user.password = req.body.password;
     }
     if(req.body.name){
-      user.name=req.body.name
+      user.name=req.body.name;
     }
 
     const updatedUser = await user.save();
