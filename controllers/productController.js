@@ -108,11 +108,11 @@ const createProductReview = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
-  // 🔐 Ensure user purchased this product
+  // Ensure user purchased this product
   const hasPurchased = await Order.findOne({
     user: req.user._id,
     isPaid: true,
-    "orderItems.product": product._id, // 👈 make sure this matches your order schema
+    "orderItems.product": product._id, 
   });
 
   if (!hasPurchased) {

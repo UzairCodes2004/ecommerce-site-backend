@@ -217,12 +217,11 @@ const cancelOrder = asyncHandler(async (req, res) => {
     }
   }
 
-  // For admins: no time restriction, but still can't cancel shipped/delivered orders
-  // (the shipped/delivered check above already handles this)
+ 
 
   order.isCancelled = true;
   order.cancelledAt = Date.now();
-  // order.cancelledBy = isAdmin ? 'admin' : 'customer'; // Track who cancelled
+
 
   // Restore stock (always restore stock when cancelling)
   for (const item of order.orderItems) {
@@ -441,7 +440,7 @@ const refundOnCancellation = asyncHandler(async (req, res) => {
     throw new Error("Cannot refund an unpaid order");
   }
 
-  // ✅ Process refund logic here
+  //  Process refund logic here
   // This is where you would integrate with your payment gateway
   // (PayPal, Stripe, etc.) to actually process the refund
 
