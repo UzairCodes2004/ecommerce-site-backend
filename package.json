@@ -19,7 +19,8 @@
     "nodemon": "^3.1.10"
   },
   "scripts": {
-    "dev": "nodemon app.js",
+    "start": "node app.js",       
+    "dev": "nodemon app.js",      
     "migrate:up": "node migrations/migrate.js up",
     "migrate:down": "node migrations/migrate.js down"
   }
