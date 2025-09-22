@@ -1,6 +1,3 @@
-// errorHandler.js
-// This should be the last middleware in your app.js
-
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
