@@ -35,7 +35,7 @@ app.use(
     credentials: true,
   })
 );
-
+app.options("*", cors());
 console.log("CORS allowed origin ->", process.env.FRONTEND_URL);
 
 // Body parsing middleware
