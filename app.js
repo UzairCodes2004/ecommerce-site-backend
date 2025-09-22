@@ -30,10 +30,12 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: ["https://ecommerce-site-frontend-by-uzair.vercel.app", "http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   })
 );
+
 console.log("CORS allowed origin ->", process.env.FRONTEND_URL);
 
 // Body parsing middleware
